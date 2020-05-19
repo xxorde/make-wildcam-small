@@ -1,0 +1,45 @@
+#!/bin/bash
+# Copyright 2020 Alexander Sosna <alexander@sosna.de>
+# MIT Licence
+
+# Show all commands
+#set -x
+
+if [ ${1} == "help" ]
+then
+	cat ${0}
+	exit
+fi
+
+if [ "${1}" == "install" ]
+then
+	echo Installing depedancys
+	sudo apt-get install ffmpeg graphicsmagick-imagemagick-compat
+	exit
+fi
+
+# If you want to convert other sources use the following line
+#for i in *.{AVI,avi,flv,m4v,mov,wmv,mp4,MP4,TS,mkv}; do
+
+# Make small videos for mobile phones 
+for file in *.{AVI,avi}
+do
+	extension="${file##*.}"
+	filename="${file%.*}"
+	echo Convert video ${file} ...
+	ffmpeg -n -loglevel error -i "${file}" -vcodec libx264 -crf 26 -vf scale=854:480 -preset faster "${filename}.480p-x264.mp4"
+done
+
+# Make small jpgs
+for file in *.{JPG,jpg}
+do
+	extension="${file##*.}"
+	filename="${file%.*}"
+	
+	# If we get ab plausible filename we convert
+	if [ ${#filename} -ge 2 ]
+       	then 
+		echo Convert image ${file} ...
+		convert -quality 85 -resize 960x720 "${file}" "${filename}.960x720.jpg"
+       	fi
+done
